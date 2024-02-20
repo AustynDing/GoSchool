@@ -1,5 +1,8 @@
 import React from 'react'
 import '../styles/global.css'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/react'
+
 export default function App({
   Component,
   pageProps,
@@ -29,6 +32,8 @@ export default function App({
   return (
     <ContainerContext.Provider value={{ container: ref }}>
       <Component {...pageProps} />
+      <Analytics />
+      <SpeedInsights />
     </ContainerContext.Provider>
   )
 }
