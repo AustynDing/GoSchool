@@ -2,6 +2,7 @@ import React from 'react'
 import '../styles/global.css'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/react'
+import { injectSpeedInsights } from '@vercel/speed-insights'
 
 export default function App({
   Component,
@@ -12,6 +13,7 @@ export default function App({
 }) {
   const ref = React.useRef<HTMLElement | null>(null)
   React.useEffect(() => {
+    injectSpeedInsights() // 使用这种方法可以生成 <script defer src="/_vercel/speed-insights/script.js"></script>
     ;(function loadGlobalCssVariables() {
       function setInnerHeight() {
         window.document.documentElement.style.setProperty(
@@ -33,6 +35,7 @@ export default function App({
     <ContainerContext.Provider value={{ container: ref }}>
       <Component {...pageProps} />
       <SpeedInsights />
+      {/* 这种方法暂时失效 */}
       <Analytics />
     </ContainerContext.Provider>
   )
