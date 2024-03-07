@@ -76,11 +76,9 @@ const generateItems = (data: TabDataType[]) => {
 // 在组件中使用generateItems函数生成items数组
 export const HotSpotTopicContainer = React.memo(
   ({ show }: { show: boolean }) => {
-    console.log('render HotSpotTopicContainer', show)
     const [data, setData] = React.useState<TabDataType[]>([])
     const [isLoading, setIsLoading] = React.useState(true)
     const TabContent = React.useMemo(() => {
-      console.log('rerender')
       const items = generateItems(data)
       return isLoading ? (
         <Skeleton style={{ width: '300px' }} />

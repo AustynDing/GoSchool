@@ -8,7 +8,6 @@ export const CardListContainer = styled.div`
   /* 设置容器的对齐方式为居中，让卡片在容器内居中显示 */
   align-items: center;
   padding: 24px 0 24px 24px;
-  overflow-y: auto;
 `
 
 export const ArrowLeftContainer = styled.div`

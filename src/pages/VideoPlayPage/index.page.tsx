@@ -10,8 +10,9 @@ import { MaskContext } from './context/MaskContext'
 import { CardDetail } from './components/CardDetail'
 import { CardItem } from './components/CardDetail/CardItem'
 import { MaskContainer } from './components/MaskContainer'
-import InfiniteScroll from 'react-infinite-scroll-component'
 import { Empty, Skeleton } from 'antd'
+import { useVirtualList } from '@/hooks/useVirtualList'
+import { useReachBottom } from '@/hooks/useReachBottom'
 
 const fakeUrl = 'api/videoList'
 export default function VideoPlayPage() {
@@ -43,7 +44,7 @@ export default function VideoPlayPage() {
   React.useEffect(LoadData, [])
   const AnimationNode = React.useMemo(() => {
     return <CardDetail {...data[targetIndex]} />
-  }, [targetIndex])
+  }, [targetIndex]) // TODO：点击卡片后货不对板
   const Animation = useSlideAnimation({
     targetRef: targetRef,
     direction: maskShown ? 'slide-in' : 'slide-out',
@@ -108,10 +109,24 @@ const VideoStream = React.memo(
     data: VideoSchoolType[]
     LoadData: () => void
   }) => {
-    console.log('render video stream')
-    const cardItems = data.map((item, index) => (
-      <CardItem key={item.schoolName + '' + index} {...item} index={index} />
+    const { itemRef, visibleItems, containerRef, style, listHeight } =
+      useVirtualList(data)
+    useReachBottom({
+      target: containerRef,
+      onReachBottom: LoadData,
+      threshold: 100,
+    })
+
+    const cardItems = visibleItems.map((item, index) => (
+      <CardItem
+        ref={itemRef}
+        key={item.schoolName + '' + index}
+        {...item}
+        index={index}
+      />
     ))
+    // console.log('itemRef.current', itemRef.current)
+    // 有null值：itemRef.current还没有挂载 + itemRef.current对应的数据被unmount了
     return isLoading ? (
       <Skeleton active paragraph={{ rows: 10 }} />
     ) : !isLoading && data.length === 0 ? (
@@ -126,15 +141,29 @@ const VideoStream = React.memo(
         <Empty />
       </div>
     ) : (
-      <InfiniteScroll
-        dataLength={data.length}
-        hasMore={true}
-        next={LoadData}
-        loader={<Skeleton paragraph={{ rows: 2 }} active />}
-        height={'100%'}
+      <div
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          height: '100%',
+          width: '100%',
+          overflow: 'auto',
+        }}
       >
-        <CardListContainer>{cardItems}</CardListContainer>
-      </InfiniteScroll>
+        <div
+          style={{
+            position: 'absolute', // 设置absolute是为了脱离文档流，防止和CardListContainer有UI上的冲突
+            left: 0,
+            top: 0,
+            zIndex: -1, // 避免显示在CardListContainer上面
+            height: listHeight + 'px', // 表示的是整个data的高度（可视list + 不可视list）
+            width: '100%',
+          }}
+        ></div>
+        {/* 用来撑开整个container */}
+        <CardListContainer style={style}>{cardItems}</CardListContainer>
+        {/* 不能设置 overflow: 'auto'， 这是为了将滚动事件的触发节点转移到父节点上 */}
+      </div>
     )
   },
 )

@@ -1,7 +1,7 @@
 import { Card, Tag } from 'antd'
 import Image from 'next/image'
 const { Meta } = Card
-import React from 'react'
+import React, { forwardRef } from 'react'
 import { useMaskContext } from '../../context/MaskContext'
 import { VideoSchoolType } from '../../data'
 import { CardContainer } from './style'
@@ -13,7 +13,10 @@ const TagColorMap: Record<string, string> = {
   热点: 'red',
 }
 const TagOptions = ['招生宣传', '专业解读', '政策分析']
-export function CardItem(props: VideoSchoolType & { index: number }) {
+function CardItemRender(
+  props: VideoSchoolType & { index: number },
+  ref: React.ForwardedRef<HTMLDivElement>,
+) {
   const cardRef = React.useRef<HTMLDivElement>(null)
   const { toggle, setTargetIndex, setTargetRef } = useMaskContext()
   const option = TagOptions[Math.floor(Math.random() * 3)]
@@ -27,7 +30,7 @@ export function CardItem(props: VideoSchoolType & { index: number }) {
   const index = props.index
   return (
     <>
-      <CardContainer>
+      <CardContainer ref={ref}>
         <Card
           ref={cardRef}
           onClick={() => {
@@ -67,3 +70,5 @@ export function CardItem(props: VideoSchoolType & { index: number }) {
     </>
   )
 }
+
+export const CardItem = forwardRef(CardItemRender)
