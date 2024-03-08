@@ -41,7 +41,6 @@ export default function VideoPlayPage() {
         }
       })
   }, [])
-  React.useEffect(LoadData, [])
   const AnimationNode = React.useMemo(() => {
     return <CardDetail {...data[targetIndex]} />
   }, [targetIndex]) // TODO：点击卡片后货不对板
@@ -119,28 +118,24 @@ const VideoStream = React.memo(
 
     const cardItems = visibleItems.map((item, index) => (
       <CardItem
-        ref={itemRef}
+        ref={index === 0 ? itemRef : null}
         key={item.schoolName + '' + index}
         {...item}
         index={index}
       />
     ))
+    // React.useEffect(() => {
+    //   console.log('here1 useEffect containerRef.current', containerRef.current) //
+    //   console.log('here1 useEffect itemRef.current', itemRef.current) //
+    // })//
+    // React.useEffect(() => {
+    //   console.log('here2 useEffect containerRef.current', containerRef.current) //
+    //   console.log('here2 useEffect itemRef.current', itemRef.current) //
+    // },[containerRef.current]) //
     // console.log('itemRef.current', itemRef.current)
+    // console.log('containerRef.current', containerRef.current)
     // 有null值：itemRef.current还没有挂载 + itemRef.current对应的数据被unmount了
-    return isLoading ? (
-      <Skeleton active paragraph={{ rows: 10 }} />
-    ) : !isLoading && data.length === 0 ? (
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Empty />
-      </div>
-    ) : (
+    return (
       <div
         ref={containerRef}
         style={{
@@ -150,19 +145,36 @@ const VideoStream = React.memo(
           overflow: 'auto',
         }}
       >
-        <div
-          style={{
-            position: 'absolute', // 设置absolute是为了脱离文档流，防止和CardListContainer有UI上的冲突
-            left: 0,
-            top: 0,
-            zIndex: -1, // 避免显示在CardListContainer上面
-            height: listHeight + 'px', // 表示的是整个data的高度（可视list + 不可视list）
-            width: '100%',
-          }}
-        ></div>
-        {/* 用来撑开整个container */}
-        <CardListContainer style={style}>{cardItems}</CardListContainer>
-        {/* 不能设置 overflow: 'auto'， 这是为了将滚动事件的触发节点转移到父节点上 */}
+        {isLoading ? (
+          <Skeleton active paragraph={{ rows: 10 }} />
+        ) : !isLoading && data.length === 0 ? (
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Empty />
+          </div>
+        ) : (
+          <>
+            <div
+              style={{
+                position: 'absolute', // 设置absolute是为了脱离文档流，防止和CardListContainer有UI上的冲突
+                left: 0,
+                top: 0,
+                zIndex: -1, // 避免显示在CardListContainer上面
+                height: listHeight + 'px', // 表示的是整个data的高度（可视list + 不可视list）
+                width: '100%',
+              }}
+            ></div>
+            {/* 用来撑开整个container */}
+            <CardListContainer style={style}>{cardItems}</CardListContainer>
+            {/* 不能设置 overflow: 'auto'， 这是为了将滚动事件的触发节点转移到父节点上 */}
+          </>
+        )}
       </div>
     )
   },
